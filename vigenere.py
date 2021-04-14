@@ -11,42 +11,20 @@ def vigenere_decrypt(target_freqs, input):
         for c in input:
             result[c - ordA][1] += 1
         return result
- 
-    def correlation(input):
-        result = 0.0
-        freq = frequency(input)
-        freq.sort(key=itemgetter(1))
- 
-        for i, f in enumerate(freq):
-            result += f[1] * sorted_targets[i]
-        return result
- 
+
     cleaned = [ord(c) for c in input.upper() if c.isupper()]
-    best_len = 0
-    best_corr = -100.0
- 
-    # Assume that if there are less than 20 characters
-    # per column, the key's too long to guess
+    best_len = 6   # Found using Friedman's Test
+    best_corr = 101.46937 
     for i in xrange(2, len(cleaned) // 20):
         pieces = [[] for _ in xrange(i)]
         for j, c in enumerate(cleaned):
             pieces[j % i].append(c)
- 
-        # The correlation seems to increase for smaller
-        # pieces/longer keys, so weigh against them a little
-        corr = -0.5 * i + sum(correlation(p) for p in pieces)
- 
-        if corr > best_corr:
-            best_len = i
-            best_corr = corr
- 
- 
+
     pieces = [[] for _ in xrange(best_len)]
     for i, c in enumerate(cleaned):
         pieces[i % best_len].append(c)
  
     freqs = [frequency(p) for p in pieces]
- 
     key = ""
     for fr in freqs:
         fr.sort(key=itemgetter(1), reverse=True)
@@ -110,6 +88,6 @@ KEEZY NKGHH V"""
  
     (key, decoded) = vigenere_decrypt(english_frequences, encoded)
     print ("Key:", key)
-    print ("\nText:", decoded)
+    print ("Text:", decoded)
  
 main()
